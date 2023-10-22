@@ -3,61 +3,65 @@
 // https://eprint.iacr.org/2010/622.pdf
 // This implementation is not optimized for performance.
 
-// The scheme is parametrized by a field F, a degree n, and a
-// generator g of F. The generator is used to compute the
-// commitment key, and the degree is used to compute the
-// evaluation key.
-
-// The scheme is as follows:
-// 1. The prover has a polynomial p of degree n-1.
-// 2. The prover computes the commitment c = p(1) + p(g) + p(g^2) + ... + p(g^(n-1))
-// 3. The prover computes the evaluation key e = (g, g^2, ..., g^n)
-// 4. The prover sends (c, e) to the verifier.
-// 5. The verifier has a point x and a value y.
-// 6. The verifier computes the evaluation v = y + x * y + x^2 * y + ... + x^(n-1) * y
-// 7. The verifier checks that c = v
 
 // The scheme is perfectly hiding and computationally binding.
 
 use dep::std;
 use dep::std::collections::vec::Vec;
 
- 
+// Compute the evaluation key.
+fn eval_key(g : Field, s : Field) -> [Field; 5] {
+    let mut e = [0; 5];
+    let mut spow = 1;
+    for i in 0..5 {
+        e[i] = g.pow_32(spow);
+        spow = spow * s;
+    }
+    e
+}
 
-fn commit(g : Field, p : [Field; 5]) -> Field {
+fn commit(e: [Field; 5], p : [Field; 5]) -> Field {
     let mut c = 0;
 
-    let mut gpow: Field = 1;
     for i in 0..5 {
-        c = c + gpow * p[i];
-        gpow = gpow * g;
+        c = c + e[i].pow_32(p[i]);
     }
     c
 }
 
-
-fn eval(e : [Field; 5], x : Field) -> Field {
-    let mut xpow = 1;
+fn eval(g : Field, x: Field, p : [Field; 5]) -> Field {
     let mut v = 0;
-    for i in 0..e.len() {
-        v = v + xpow * e[i];
+
+    let mut xpow: Field = 1;
+    for i in 0..5 {
+        v = v + g.pow_32(xpow*p[i]);
         xpow = xpow * x;
     }
     v
 }
 
+
 fn main(g: Field, p: [Field; 5], x: Field, e: [Field; 5]) {
-    let c = commit(g, p);
-    let v = eval(e, x);
-    assert(v == c);
+    let c = commit(e, p);
+    let v = eval(g, x, p);
+
+    let s = 3;
+    let e_tmp = eval_key(g, s);
+    let c_tmp = commit(e_tmp, p);
+    let v_tmp = eval(g, x, p);
+
+    assert(c == c_tmp);
+    assert(v == v_tmp);
 }
 
 #[test]
 fn test_main() {
     let g = 2;
     let p = [1, 2, 3, 4, 5];
-    let x = 2;
-    let e = [1, 2, 3, 4, 5];
+    let s = 3;
+    let x = 5;
+    let e = eval_key(g, s);
+
     main(g, p, x, e);
 }
 

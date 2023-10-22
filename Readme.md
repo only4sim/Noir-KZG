@@ -1,10 +1,10 @@
-# KZG Commitment for Noir
+# Noir-KZG: KZG Commitment for Noir
 
-This repository contains an implementation of the KZG commitment scheme for polynomials using the Noir language. The KZG commitment scheme is described in detail in [this paper](https://eprint.iacr.org/2010/622.pdf). The current implementation is simplified and not optimized for performance.
+This repository contains a simple implementation of the KZG commitment scheme for polynomials using the Noir programming language. The KZG commitment scheme is described in detail in [this paper](https://www.iacr.org/archive/asiacrypt2010/6477178/6477178.pdf). The current implementation is not optimized for performance but serves as a straightforward illustration of the scheme.
 
 ## Getting Started
 
-These instructions will help you run the implementation on your local machine for development and testing purposes.
+Below are instructions to get this project up and running on your local machine for development and testing purposes.
 
 ### Prerequisites
 
@@ -12,12 +12,13 @@ Ensure you have the latest version of the Noir language installed on your machin
 
 ### Usage
 
-The code is contained within a single file `main.nr`. The implementation is structured as follows:
+The code is contained within a single file. The implementation is structured as follows:
 
-1. The `commit` function computes the commitment of a polynomial `p` with a generator `g` of the field `F`.
-2. The `eval` function computes the evaluation key `e` at a point `x`.
-3. The `main` function demonstrates how to use the `commit` and `eval` functions, and includes an assertion to verify the correctness of the scheme.
-4. A test function `test_main` is provided to exemplify the usage of the `main` function with specific values.
+1. The `eval_key` function computes the evaluation key based on a generator `g` and a scalar `s`.
+2. The `commit` function computes the commitment of a polynomial `p` using an evaluation key `e`.
+3. The `eval` function computes the evaluation of polynomial `p` at a point `x` with a generator `g`.
+4. The `main` function demonstrates how to use the `eval_key`, `commit`, and `eval` functions, and includes assertions to verify the correctness of the scheme.
+5. A test function `test_main` is provided to exemplify the usage of the `main` function with specific values.
 
 ### File Structure
 
@@ -25,21 +26,35 @@ The code is contained within a single file `main.nr`. The implementation is stru
 
 ### Functions
 
-#### `commit(g: Field, p: [Field; 5]) -> Field`
+#### `eval_key(g: Field, s: Field) -> [Field; 5]`
 
-This function takes a generator `g` and a polynomial `p` of degree 4 (5 coefficients) as arguments, and returns the commitment `c` of the polynomial `p`.
+This function computes the evaluation key based on a generator `g` and a secret `s`.
 
-#### `eval(e: [Field; 5], x: Field) -> Field`
+#### `commit(e: [Field; 5], p: [Field; 5]) -> Field`
 
-This function takes an evaluation key `e` and a point `x`, and returns the evaluation `v` of the key `e` at the point `x`.
+This function computes the commitment of a polynomial `p` using an evaluation key `e`.
+
+#### `eval(g: Field, x: Field, p: [Field; 5]) -> Field`
+
+This function computes the evaluation of polynomial `p` at a point `x` with a generator `g`.
 
 #### `main(g: Field, p: [Field; 5], x: Field, e: [Field; 5])`
 
-This function demonstrates the usage of the `commit` and `eval` functions, and includes an assertion to verify the correctness of the scheme.
+This function demonstrates the usage of the `eval_key`, `commit`, and `eval` functions, and includes assertions to verify the correctness of the scheme.
 
 #### `#[test] fn test_main()`
 
 A test function to exemplify the usage of the `main` function with specific values.
+
+## Running the Tests
+
+To run the tests, use the following command:
+
+```bash
+noir test
+```
+
+This will execute the `test_main` function, verifying the correctness of the implementation.
 
 ## Running the Tests
 
@@ -62,11 +77,14 @@ nargo verify
 ```
 
 ## Contributing
+
 Feel free to open issues or submit pull requests to improve the implementation or extend its functionality.
 
 ## License
+
 This project is licensed under the MIT License.
 
 ## Acknowledgements
-The KZG commitment scheme is based on the paper by Kate, Zaverucha, and Goldberg: https://eprint.iacr.org/2010/622.pdf
-Thanks to the Noir community for providing the language and the necessary tools to implement cryptographic schemes.
+
+- The KZG commitment scheme is based on the paper by Kate, Zaverucha, and Goldberg: [https://www.iacr.org/archive/asiacrypt2010/6477178/6477178.pdf](https://www.iacr.org/archive/asiacrypt2010/6477178/6477178.pdf)
+- Thanks to the Noir community for providing the language and the necessary tools to implement cryptographic schemes.
