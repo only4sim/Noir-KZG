@@ -1,4 +1,4 @@
-# KZG Commitment Scheme Implementation in Noir
+# KZG Commitment for Noir
 
 This repository contains an implementation of the KZG commitment scheme for polynomials using the Noir language. The KZG commitment scheme is described in detail in [this paper](https://eprint.iacr.org/2010/622.pdf). The current implementation is simplified and not optimized for performance.
 
